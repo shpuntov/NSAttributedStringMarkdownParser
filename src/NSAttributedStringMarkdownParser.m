@@ -92,7 +92,7 @@ int markdownConsume(char* text, int token, yyscan_t scanner);
     self.italicFontName = @"Helvetica-Oblique";
     self.boldItalicFontName = @"Helvetica-BoldOblique";
     self.blockQuotesAttributes = @{
-                                   NSFontAttributeName : (__bridge id)[self fontRefForFontWithName:self.italicFontName pointSize:self.paragraphFont.pointSize],
+                                   NSFontAttributeName : [UIFont fontWithName:self.italicFontName size:self.paragraphFont.pointSize],
                                    NSForegroundColorAttributeName : [UIColor darkGrayColor]
                                    };
 
@@ -323,33 +323,12 @@ int markdownConsume(char* text, int token, yyscan_t scanner);
   }
 }
 
-- (id)keyForFontWithName:(NSString *)fontName pointSize:(CGFloat)pointSize {
-  return [fontName stringByAppendingFormat:@"%f", pointSize];
-}
-
-- (CTFontRef)fontRefForFontWithName:(NSString *)fontName pointSize:(CGFloat)pointSize {
-  id key = [self keyForFontWithName:fontName pointSize:pointSize];
-  NSValue* value = _fontCache[key];
-  if (nil == value) {
-    CTFontRef fontRef = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, nil);
-    value = [NSValue valueWithPointer:fontRef];
-    _fontCache[key] = value;
-  }
-  return [value pointerValue];
-}
-
 - (NSDictionary *)attributesForFontWithName:(NSString *)fontName {
-  CTFontRef fontRef = [self fontRefForFontWithName:fontName pointSize:self.topFont.pointSize];
-  NSDictionary* attributes = @{(__bridge NSString* )kCTFontAttributeName:(__bridge id)fontRef};
-  CFRelease(fontRef);
-  return attributes;
+  return @{NSFontAttributeName:[UIFont fontWithName:fontName size:self.topFont.pointSize]};
 }
 
 - (NSDictionary *)attributesForFont:(UIFont *)font {
-  CTFontRef fontRef = [self fontRefForFontWithName:font.fontName pointSize:font.pointSize];
-  NSDictionary* attributes = @{(__bridge NSString* )kCTFontAttributeName:(__bridge id)fontRef};
-  CFRelease(fontRef);
-  return attributes;
+  return @{NSFontAttributeName:font};
 }
 
 - (void)recurseOnString:(NSString *)string withFont:(UIFont *)font {
